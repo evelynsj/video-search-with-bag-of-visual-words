@@ -25,9 +25,10 @@ oninds = selectRegion(im1, positions1);
 % fprintf('hit a key to continue.\n');
 % pause;
 
+numfeats = size(oninds, 1);
 match = [];
-threshold = 0.7;
-for i=1:size(oninds,1)
+threshold = 0.8;
+for i=1:numfeats
     dist = dist2(descriptors1(oninds(i),:), descriptors2); % we want to find the Euclid distance for each position
     % i,j is the euclid dist between ith row of d1 and jth row of d2
     % so the dist of each feature in d1 (within boundary of interest points) is compared against every other feature in d2
@@ -43,3 +44,7 @@ for i=1:size(oninds,1)
 end
 
 %% Display selected region of interest in the image (polygon) and the matched features in the second image
+%TODO: DISPLAY SELECTED REGION IN IMAGE
+match = match';
+imshow(im2);
+displaySIFTPatches(positions2(match,:), scales2(match), orients2(match), im2);
