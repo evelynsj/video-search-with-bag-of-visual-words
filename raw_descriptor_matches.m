@@ -14,7 +14,17 @@ load('twoFrameData');
 
 % select region of interest
 fprintf('\n\nuse the mouse to draw a polygon, double click to end it\n');
-oninds = selectRegion(im1, positions1);
+% oninds = selectRegion(im1, positions1);
+[oninds,border] = selectRegionMod(im1, positions1); 
+
+% DISPLAY SELECTED REGION IN IMAGE
+hold on;
+imshow(im1);
+polygon = fill(border(:,1),border(:,2),'r'); % creates a polygon & fills with red
+set(polygon, 'FaceColor', 'none'); % removes red fill
+set(polygon, 'EdgeColor', 'y'); 
+set(polygon, 'LineWidth', 5);
+
 
 %% Match descriptors in that region to descriptors in second image based on Euclidean distance in SIFT space
 % oninds = tells us positions in the region where it has SIFT extracted
@@ -44,7 +54,7 @@ for i=1:numfeats
 end
 
 %% Display selected region of interest in the image (polygon) and the matched features in the second image
-%TODO: DISPLAY SELECTED REGION IN IMAGE
 match = match';
+figure;
 imshow(im2);
 displaySIFTPatches(positions2(match,:), scales2(match), orients2(match), im2);
