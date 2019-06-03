@@ -1,4 +1,4 @@
-% Rough outline:
+%% Rough outline:
 % 1. Choose 3 different/random frames to serve as queries
 % 2. Create the bag of words for each query image (bag of words = histogram, use histc)
 % 3. Create the bag of words for all remaining frames (bag of words = histogram, use histc)
@@ -26,8 +26,28 @@
         % descriptor (so max is 1500)
     % range = 1:1500
     
-    
-% thoughts
+%% Choose 3 different/random frames to serve as queries
+
+addpath('../PS 3/provided_code/')
+
+framesdir = '../PS 3/frames/';
+siftdir = '../PS 3/sift/';
+
+fnames = dir([siftdir '/*.mat']);
+randFrames = randperm(length(fnames), 3);
+
+% might need %
+% positions
+% scales
+% orients
+imageNames = [];
+for i=1:3
+    fname = [siftdir '/' fnames(randFrames(i)).name];
+    load(fname, 'imname', 'descriptors', 'positions', 'scales', 'orients');
+    imageNames = [imageNames; imname];
+end
+
+%% thoughts
 % we need to use dist to find membership for the query images because the
 % membership matrix that kmeansml outputs is only for the descriptors that
 % are sampled. And we don't know if our query image is part of that.
