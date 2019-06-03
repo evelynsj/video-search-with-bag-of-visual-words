@@ -24,7 +24,7 @@
         % the value in the membership matrix is just the index of the word descriptor (so max is 1500)
     % range = 1:1500
     
-%% Choose 3 different/random frames to serve as queries
+%% Choose 3 different/random frames to serve as queries & create a bag of word for each query image
 
 addpath('../PS 3/provided_code/')
 load('kmeans.mat')
@@ -36,28 +36,20 @@ fnames = dir([siftdir '/*.mat']);
 randFrames = randperm(length(fnames), 3);
 
 imageNames = [];
-for i=1:3
-    fname = [siftdir '/' fnames(randFrames(i)).name];
-    load(fname, 'imname');
-    imageNames = [imageNames; imname];
-end
-
-%% Create bag of words for each query image
-
 queryBow = [];
 for i=1:3
-    % get the descriptors
     fname = [siftdir '/' fnames(randFrames(i)).name];
-    load(fname, 'descriptors');
+    load(fname, 'imname', 'descriptors');
+    % get image names
+    imageNames = [imageNames; imname];
     % find the distances between each descriptor and the kmeans clusters (use dist2)
     dist = dist2(descriptors, means); % each row values are the distance from each descriptor to all 1500 words hence nx1500
     % Get the membership vector
     [~, minIdx] = min(dist, [], 2);
     % create a histogram
     bincounts = histc(minIdx, 1:1500);
-    queryBow = [queryBow; bincounts'];
+    queryBow = [queryBow; bincounts']; % BoW for the three query images are stored in queryBow (each row corresponds to each image)
 end
-% BoW for the three query images are stored in queryBow (each row corresponds to each image)
 
 %% thoughts
 % we need to use dist to find membership for the query images because the
