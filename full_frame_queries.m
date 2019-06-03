@@ -29,6 +29,7 @@
 %% Choose 3 different/random frames to serve as queries
 
 addpath('../PS 3/provided_code/')
+load('kmeans.mat')
 
 framesdir = '../PS 3/frames/';
 siftdir = '../PS 3/sift/';
@@ -36,15 +37,22 @@ siftdir = '../PS 3/sift/';
 fnames = dir([siftdir '/*.mat']);
 randFrames = randperm(length(fnames), 3);
 
-% might need %
-% positions
-% scales
-% orients
 imageNames = [];
 for i=1:3
     fname = [siftdir '/' fnames(randFrames(i)).name];
-    load(fname, 'imname', 'descriptors', 'positions', 'scales', 'orients');
+    load(fname, 'imname');
     imageNames = [imageNames; imname];
+end
+
+%% Create bag of words for each query image
+for i=1:1
+    % get the descriptors
+    fname = [siftdir '/' fnames(randFrames(i)).name];
+    load(fname, 'descriptors');
+    % find the distances between each descriptor and the kmeans clusters (use dist2)
+    dist = dist2(descriptors, means); % each row values are the distance from each descriptor to all 1500 words hence nx1500
+    % Get the membership vector
+    [min, minIdx] = min(dist, [], 2);
 end
 
 %% thoughts
