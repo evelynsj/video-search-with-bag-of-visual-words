@@ -14,34 +14,79 @@ siftdir = './sift/';
 fnames = dir([siftDir '/*.mat']);
 fprintf('reading %d total files...\n', length(fnames));
 
-% images = dir([framesDir '/*jpeg']);
-% x = length(matfiles); 
-% disp(x);
+imnames = dir([framesdir '/*.jpeg']);
+
 
 allDescriptors = [];
+allPositions = [];
+allScales = [];
+allOrients= [];
 
-for i = 1:400 % number of frames
+imageMat = [];
+
+for i = 1:800 % number of frames
 
     % load that file
     fname = [siftdir '/' fnames(i).name];
     load(fname, 'imname', 'descriptors', 'positions', 'scales', 'orients');
-    numfeats = size(descriptors,1);
-%     disp(numfeats);
-    
-    if(numfeats >= 50)
-        descriptorIndex = randperm(numfeats, 50); 
-%         disp(mydescriptors);
 
-%         disp(descriptors(descriptorIndex,:));
+    numfeats = size(descriptors,1);
+
+    
+    if(numfeats >= 100) % desregards frames with <10 features/descriptors
+%         numfeats = 100;
+%         descriptorIndex = randperm(numfeats, numDescriptorsToCollect);
+        descriptorIndex = randperm(numfeats, 100); 
         allDescriptors = [allDescriptors; descriptors(descriptorIndex,:)];
+        allPositions = [allPositions; positions(descriptorIndex,:)];
+        allScales = [allScales; scales(descriptorIndex,:)];
+        allOrients = [allOrients; orients(descriptorIndex,:)];
+        imageMat = [imageMat; imnames(descriptorIndex,:)];
+    
         
     end
     
 end
-
 allDescriptors = allDescriptors';
 
-% 	membership	1xn cluster membership vector
+% 	membership	1xn cluster membership vector(index of which word
+%       descriptor belongs to)
 % 	means		dxk matrix of cluster centroids
 k=1500;
 [membership,means] = kmeansML(k, allDescriptors);
+
+% create two random sample, pick 2 random words
+wordIdx = randperm(k,2);
+
+
+for i=1:2
+    figure;
+    n = wordIdx(i);
+
+    
+    % finds indices of all the features/descriptors associated with that
+    % word/membership
+    descriptorIdx = find(membership == n);
+
+    
+    disp(size(descriptorIdx));
+
+    for k=1:25
+        featureIdx = descriptorIdx(k);
+
+         % read in the associated image
+        imname = [framesdir imageMat(featureIdx).name]; % add the full path
+        img = imread(imname);
+
+        grayImg = rgb2gray(img);
+        
+        patch = getPatchFromSIFTParameters(allPositions(featureIdx,:), allScales(featureIdx), allOrients(featureIdx), grayImg);
+
+        subplot(5,5,k);
+        imshow(patch);
+
+    end
+
+end
+
+
