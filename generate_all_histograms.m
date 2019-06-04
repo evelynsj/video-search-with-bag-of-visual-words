@@ -8,7 +8,6 @@ fnames = dir([siftdir '/*.mat']);
 
 allBow = zeros(length(fnames), 1500); % result should be 6612x1500
 for i=1:length(fnames)
-    disp(i);
     fname = [siftdir '/' fnames(i).name];
     load(fname, 'descriptors');
     if size(descriptors, 1) == 0

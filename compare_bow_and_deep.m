@@ -2,6 +2,7 @@
 addpath('../PS 3/provided_code/')
 load('kmeans.mat')
 load('allBow.mat')
+load('allDeepFC.mat')
 
 framesdir = '../PS 3/frames/';
 siftdir = '../PS 3/sift/';
@@ -28,7 +29,44 @@ top10Idx = zeros(2,10);
 for i=1:2
     simScore = corr(queryBow(i,:)', allBow'); % compute similarity score
     simScore(isnan(simScore)) = 0;
-    % get top 5 by sorting. Need to preserve the index though
+    % get top 10 by sorting. Need to preserve the index though
+    [sortedSim, prevIdx] = sort(simScore, 'descend');
+    top10(i,:) = sortedSim(2:11);
+    top10Idx(i,:) = prevIdx(2:11);
+end
+
+% display
+for i=1:2
+    figure;
+    for j=1:11
+        subplot(3,4,j);
+        if j == 1
+            fname = [siftdir '/' frames(i,:)];
+        else
+            fname = [siftdir '/' fnames(top10Idx(i,j-1)).name];
+        end
+        load(fname, 'imname');
+        imname = [framesdir '/' imname];
+        img = imread(imname);
+        imshow(img);
+    end
+end
+
+%% Alexnet
+queryDeepFC = zeros(size(frames, 1), 4096);
+for i=1:2
+    fname = [siftdir '/' frames(i,:)];
+    load(fname, 'imname', 'deepFC7');
+    imname = [framesdir '/' imname];
+    img = imread(imname);
+    queryDeepFC(i,:) = deepFC7;
+end
+
+% compute similarity
+for i=1:2
+    simScore = corr(queryDeepFC(i,:)', allDeepFC');
+    simScore(isnan(simScore)) = 0;
+    % get top 10 by sorting. Need to preserve the index though
     [sortedSim, prevIdx] = sort(simScore, 'descend');
     top10(i,:) = sortedSim(2:11);
     top10Idx(i,:) = prevIdx(2:11);
@@ -50,4 +88,3 @@ for i=1:2
     end
 end
 
-%% Alexnet
