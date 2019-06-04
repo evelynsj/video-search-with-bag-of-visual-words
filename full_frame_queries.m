@@ -55,7 +55,7 @@ for i=1:3
         else
             fname = [siftdir '/' fnames(top5Idx(i,j-1)).name];
         end
-            load(fname, 'imname');
+        load(fname, 'imname');
         imname = [framesdir '/' imname];
         img = imread(imname);
         imshow(img);
